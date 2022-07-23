@@ -9,6 +9,29 @@
     <title>Vuexy  - Vuejs, HTML & Laravel Admin Dashboard Template</title>
   </head>
   <body>
+    <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.9.1/firebase-app.js";
+      import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.9.1/firebase-analytics.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+    
+      // Your web app's Firebase configuration
+      // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+      const firebaseConfig = {
+        apiKey: "AIzaSyDZ_AXQ25gG2VTNXg6XCqT2u2Kl_yBLu90",
+        authDomain: "dduck24-order.firebaseapp.com",
+        projectId: "dduck24-order",
+        storageBucket: "dduck24-order.appspot.com",
+        messagingSenderId: "554924470487",
+        appId: "1:554924470487:web:b09db1d2fccbac67908092",
+        measurementId: "G-MMKSFN0JYD"
+      };
+    
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const analytics = getAnalytics(app);
+    </script>
     <noscript>
       <strong>We're sorry but Vuexy - Vuejs, HTML & Laravel Admin Dashboard Template doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
