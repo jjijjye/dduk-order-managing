@@ -53,7 +53,8 @@ const router = new Router({
           name: 'dashboard-analytics',
           component: () => import('./views/DashboardAnalytics.vue'),
           meta: {
-            rule: 'editor'
+            rule: 'editor',
+            authRequired: true
           }
         },
         {
@@ -1307,7 +1308,8 @@ const router = new Router({
           name: 'page-login',
           component: () => import('@/views/pages/login/Login.vue'),
           meta: {
-            rule: 'editor'
+            rule: 'editor',
+            authRequired : false
           }
         },
         {
@@ -1315,7 +1317,8 @@ const router = new Router({
           name: 'page-register',
           component: () => import('@/views/pages/register/Register.vue'),
           meta: {
-            rule: 'editor'
+            rule: 'editor',
+            authRequired : false
           }
         },
         {

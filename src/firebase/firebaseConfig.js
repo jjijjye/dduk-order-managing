@@ -6,12 +6,13 @@ import firebase from 'firebase/app'
 
 // Initialize Firebase
 const config = {
-  apiKey: 'YOUR_API_KEY',
-  authDomain: 'YOUR_AUTH_DOMAIN',
-  databaseURL: 'YOUR_DATA_URL',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_STORAGE_BUCKET',
-  messagingSenderId: 'YOUR_MESSAGING_ID'
+  apiKey: 'AIzaSyDZ_AXQ25gG2VTNXg6XCqT2u2Kl_yBLu90',
+  authDomain: 'dduck24-order.firebaseapp.com',
+  projectId: 'dduck24-order',
+  storageBucket: 'dduck24-order.appspot.com',
+  messagingSenderId: '554924470487',
+  appId: '1:554924470487:web:b09db1d2fccbac67908092',
+  measurementId: 'G-MMKSFN0JYD'
 }
 
 firebase.initializeApp(config)
