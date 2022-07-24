@@ -73,13 +73,16 @@
     </component>
 
     <div class="flex flex-wrap items-center p-6" slot="footer">
-      <vs-button class="mr-6" @click="submitData" :disabled="!isFormValid">Submit</vs-button>
+      <vs-button class="mr-6" @click="onAddData" :disabled="!isFormValid">Submit</vs-button>
       <vs-button type="border" color="danger" @click="isSidebarActiveLocal = false">Cancel</vs-button>
     </div>
   </vs-sidebar>
 </template>
 
 <script>
+// eslint-disable-next-line no-unused-vars
+import firebase from 'firebase/app'
+import 'firebase/firestore'
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 
 export default {
@@ -172,6 +175,27 @@ export default {
       this.dataPrice = 0
       this.dataImg = null
     },
+    onAddData () {
+      const db = firebase.firestore()
+      const user = firebase.auth().currentUser
+      if (user) {
+        db.collection('bbs')
+          .add(
+            {
+              uid: user.uid,
+              id: this.dataId,
+              name: this.dataName,
+              img: this.dataImg,
+              category: this.dataCategory,
+              order_status: this.dataOrder_status,
+              price: this.dataPrice
+            })
+          .then(function () {
+            alert('성공적으로 적용 되었습니다.')
+          })
+      }
+    },
+
     submitData () {
       this.$validator.validateAll().then(result => {
         if (result) {
