@@ -385,6 +385,20 @@ const router = new Router({
           }
         },
         {
+          path: '/ui-elements/table2',
+          name: 'table2',
+          component: () => import('./views/ui-elements/table/Table2.vue'),
+          meta: {
+            authRequired: true,
+            breadcrumb: [
+              { title: 'Home', url: '/' },
+              { title: '주문관리', active: true } 
+            ],
+            pageTitle: '주문관리',
+            rule: 'editor'
+          }
+        },
+        {
           path: '/ui-elements/ag-grid-table',
           name: 'ag-grid-table',
           component: () => import('./views/ui-elements/ag-grid-table/AgGridTable.vue'),
