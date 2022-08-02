@@ -11,7 +11,7 @@
 <template>
   <vs-sidebar click-not-close position-right parent="body" default-index="1" color="primary" class="add-new-data-sidebar items-no-padding" spacer v-model="isSidebarActiveLocal">
     <div class="mt-6 flex items-center justify-between px-6">
-        <h4>{{ Object.entries(this.data).length === 0 ? "ADD NEW" : "UPDATE" }} ITEM</h4>
+        <h4>주문 {{ Object.entries(this.data).length === 0 ? "작성" : "수정" }} </h4>
         <feather-icon icon="XIcon" @click.stop="isSidebarActiveLocal = false" class="cursor-pointer"></feather-icon>
     </div>
     <vs-divider class="mb-0"></vs-divider>
@@ -21,54 +21,72 @@
       <div class="p-6">
 
         <!-- Product Image -->
-        <template v-if="dataImg">
+        <!-- <template v-if="dataImg"> -->
 
           <!-- Image Container -->
-          <div class="img-container w-64 mx-auto flex items-center justify-center">
-            <img :src="dataImg" alt="img" class="responsive">
-          </div>
+          <!-- <div class="img-container w-64 mx-auto flex items-center justify-center"> -->
+            <!-- <img :src="dataImg" alt="img" class="responsive"> -->
+          <!-- </div> -->
 
           <!-- Image upload Buttons -->
-          <div class="modify-img flex justify-between mt-5">
+          <!-- <div class="modify-img flex justify-between mt-5">
             <input type="file" class="hidden" ref="updateImgInput" @change="updateCurrImg" accept="image/*">
             <vs-button class="mr-4" type="flat" @click="$refs.updateImgInput.click()">Update Image</vs-button>
             <vs-button type="flat" color="#999" @click="dataImg = null">Remove Image</vs-button>
-          </div>
-        </template>
+          </div> -->
+        <!-- </template> -->
 
-        <!-- NAME -->
-        <vs-input label="Name" v-model="dataName" class="mt-5 w-full" name="item-name" v-validate="'required'" />
+        <!-- 날짜 & 시간 -->
+        <flat-pickr :config="configdateTimePicker" class="mt-5 w-full" label="주문 날짜 및 시간" v-model="datetime" placeholder="주문 날짜 및 시간"/>
         <span class="text-danger text-sm" v-show="errors.has('item-name')">{{ errors.first('item-name') }}</span>
 
-        <!-- CATEGORY -->
-        <vs-select v-model="dataCategory" label="Category" class="mt-5 w-full" name="item-category" v-validate="'required'">
-          <vs-select-item :key="item.value" :value="item.value" :text="item.text" v-for="item in category_choices" />
-        </vs-select>
-        <span class="text-danger text-sm" v-show="errors.has('item-category')">{{ errors.first('item-category') }}</span>
+        <!-- 떡 선택 -->
+        <v-select placeholder="떡 종류" label="떡" class="mt-5 w-full" name="order-item" v-validate="'required'" :options="['foo','bar']" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
 
+        <!-- NAME -->
+        <vs-input class="mt-5 w-full" icon-pack="feather" icon="icon-user" icon-no-border label="고객 이름" v-model="input13" />
+        <span class="text-danger text-sm" v-show="errors.has('item-name')">{{ errors.first('item-name') }}</span>
+
+        
         <!-- ORDER STATUS -->
         <vs-select v-model="dataOrder_status" label="Order Status" class="mt-5 w-full">
           <vs-select-item :key="item.value" :value="item.value" :text="item.text" v-for="item in order_status_choices" />
         </vs-select>
 
         <!-- PRICE -->
-        <vs-input
+        <!-- <vs-input
           icon-pack="feather"
-          icon="icon-dollar-sign"
-          label="Price"
+          icon="icon-heart"
+          label="합계"
           v-model="dataPrice"
           class="mt-5 w-full"
           v-validate="{ required: true, regex: /\d+(\.\d+)?$/ }"
+          name="item-price" />  -->
+
+<vx-input-group class="mb-base mt-5 w-full"  >
+    <template slot="prepend" >
+      <div class="mt-5 w-full prepend-text bg-primary" >
+        <span>₩</span>
+      </div>
+    </template>
+
+    <vs-input
+          placeholder="합계"
+          class="mt-5 w-full"
+          v-model="dataPrice"
+          v-validate="{ required: true, regex: /\d+(\.\d+)?$/ }"
           name="item-price" />
+
+    <template slot="append">
+      <div class="mt-5 w-full append-text bg-primary">
+        <span>원</span>
+      </div>
+    </template>
+  </vx-input-group>
+
         <span class="text-danger text-sm" v-show="errors.has('item-price')">{{ errors.first('item-price') }}</span>
 
-        <!-- Upload -->
-        <!-- <vs-upload text="Upload Image" class="img-upload" ref="fileUpload" /> -->
-
-        <div class="upload-img mt-5" v-if="!dataImg">
-          <input type="file" class="hidden" ref="uploadImgInput" @change="updateCurrImg" accept="image/*">
-          <vs-button @click="$refs.uploadImgInput.click()">Upload Image</vs-button>
-        </div>
+        
       </div>
     </component>
 
@@ -84,6 +102,12 @@
 import firebase from 'firebase/app'
 import 'firebase/firestore'
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
+import dayjs from 'dayjs'
+import flatPickr from 'vue-flatpickr-component'
+import 'flatpickr/dist/flatpickr.css'
+import { Korean } from 'flatpickr/dist/l10n/ko.js'
+import vSelect from 'vue-select'
+
 
 export default {
   props: {
@@ -97,15 +121,25 @@ export default {
     }
   },
   components: {
-    VuePerfectScrollbar
+    VuePerfectScrollbar,
+    dayjs,
+    flatPickr,
+    vSelect
   },
   data () {
     return {
 
-      dataId: null,
-      dataName: '',
-      dataCategory: null,
-      dataImg: null,
+      datetime: null,
+      configdateTimePicker: {
+        enableTime: true,
+        dateFormat: 'Y-m-d H:i',
+        locale: Korean,
+      },
+
+      dataId: dayjs().format('YYYYMMDDHHmmss'),
+      customerName: '',
+      date: null,
+      dataOrder: null,
       dataOrder_status: 'pending',
       dataPrice: 0,
 
@@ -168,7 +202,7 @@ export default {
   methods: {
     initValues () {
       if (this.data.id) return
-      this.dataId = null
+      this.dataId = ''
       this.dataName = ''
       this.dataCategory = null
       this.dataOrder_status = 'pending'
@@ -179,13 +213,13 @@ export default {
       const db = firebase.firestore()
       const user = firebase.auth().currentUser
       if (user) {
-        db.collection('bbs')
+        db.collection('order')
           .add(
             {
               uid: user.uid,
-              id: this.dataId,
+              id: this.dataId, //저장날짜로 id화
               name: this.dataName,
-              img: this.dataImg,
+              date: this.date,
               category: this.dataCategory,
               order_status: this.dataOrder_status,
               price: this.dataPrice
