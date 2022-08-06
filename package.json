@@ -74,5 +74,9 @@
     "script-loader": "0.7.2",
     "tailwindcss": "^1.0.1",
     "vue-template-compiler": "^2.6.10"
-  }
+  },
+  "main": "index.js",
+  "repository": "https://github.com/jjijjye/dduk-order-managing.git",
+  "author": "jjijjye <jjijjye@gmail.com>",
+  "license": "MIT"
 }

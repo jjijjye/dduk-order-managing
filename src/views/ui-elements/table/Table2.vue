@@ -9,7 +9,7 @@
 
 
 <template>
-    <vx-card title="주문관리">
+    <vx-card title="오늘의 주문">
 
 
 <div class="flex flex-wrap-reverse items-center data-list-btn-container">
@@ -52,7 +52,6 @@
                   <span>Another Action</span>
                 </span>
               </vs-dropdown-item>
-
             </vs-dropdown-menu>
           </vs-dropdown>
 
@@ -60,41 +59,102 @@
           <!-- <div class="btn-add-new p-3 mb-4 mr-4 rounded-lg cursor-pointer flex items-center justify-center text-lg font-medium text-base text-primary border border-solid border-primary" @click="addNewData"> -->
           <div class="btn-add-new p-3 mb-4 mr-4 rounded-lg cursor-pointer flex items-center justify-center text-lg font-medium text-base text-primary border border-solid border-primary" @click="popupActive=true">
               <feather-icon icon="PlusIcon" svgClasses="h-4 w-4" />
-              <span class="ml-2 text-base text-primary">Add New</span>
+              <span class="ml-2 text-base text-primary">주문 추가</span>
 
               <!-- 주문생성 팝업 -->
               <vs-popup class="holamundo" title="주문" :active.sync="popupActive">
                 <div class="p-6">
                   <!-- <h4>주문 {{ Object.entries(this.data).length === 0 ? "작성" : "수정" }} </h4> -->
                   <!-- 날짜 & 시간 -->
-                  <flat-pickr :config="configdateTimePicker" class="mt-5 w-full" label="주문 날짜 및 시간" v-model="datetime" placeholder="주문 날짜 및 시간"/>
+                  <flat-pickr :config="configdateTimePicker" class="w-full" label="주문 날짜 및 시간" v-model="datetime" placeholder="주문 날짜 및 시간"/>
                   <span class="text-danger text-sm" v-show="errors.has('item-name')">{{ errors.first('item-name') }}</span>
 
                   <!-- 떡 선택 -->
-                    <div class="vx-row" label="떡">
-                      <div class="vx-col sm:w-1/3 w-full mb-2" >
-                        <v-select class="w-full" placeholder="떡 종류" name="order-item" v-validate="'required'" :options="dduckList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
-                      </div>
-                      <div class="vx-col sm:w-1/3 w-full mb-2">
-                        <vs-input-number class="w-full" v-model="number"/>
-                      </div>
-                      <div class="vx-col sm:w-1/3 w-full mb-2">
-                        <v-select class="w-full" placeholder="단위" name="order-item" v-validate="'required'" :options="['kg','되','말','개']" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
-                      </div>
-                    </div> 
+                  <div class="vx-row mt-6">
+                    <div class="vx-col flex-1 mb-2" >
+                      <v-select placeholder="떡" name="order-item"  v-model="dduck" v-validate="'required'" :options="dduckList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
+                    </div>
+                    <div class="vx-col flex-1 mb-2">
+                      <vs-input-number v-model="amount" label="수량:"/>
+                    </div>
+                    <div class="vx-col flex-1 mb-2">
+                      <v-select placeholder="단위" name="order-item"  v-model="unit" v-validate="'required'" :options="['kg','되','말','개']" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
+                    </div>
+                  </div> 
 
-                  <!-- NAME -->
-                  <vs-input class="mt-5 w-full" icon-pack="feather" icon="icon-user" icon-no-border label="고객 이름" v-model="input13" />
-                  <span class="text-danger text-sm" v-show="errors.has('item-name')">{{ errors.first('item-name') }}</span>
+                  <div class="vx-row mt-6">
+                    <div class="vx-col flex-1 mb-2">
+                    <label>스티커</label>
+                    <vs-switch v-model="stickerflg" icon-pack="feather" vs-icon-on="icon-check-circle" vs-icon-off="icon-slash" >
+                      <span slot="on"></span>
+                      <span slot="off"></span>
+                    </vs-switch>
+                    </div>
+                    <div class="vx-col flex-1 mb-2">
+                    <label>OPP</label>
+                    <vs-switch v-model="oppflg" icon-pack="feather" vs-icon-on="icon-check-circle" vs-icon-off="icon-slash" >
+                      <span slot="on"></span>
+                      <span slot="off"></span>
+                    </vs-switch>
+                    </div>
+                    <div class="vx-col flex-1 mb-2">
+                      <ul class="centerx">
+                        <li>
+                          <vs-radio v-model="pickflg" vs-value="픽업">픽업</vs-radio>
+                        </li>
+                        <li>
+                          <vs-radio v-model="pickflg" vs-value="배달">배달</vs-radio>
+                        </li>
+                        <li>
+                          <vs-radio v-model="pickflg" vs-value="퀵">퀵</vs-radio>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="vx-col flex-1 mb-2">
+                      <ul class="centerx">
+                        <li>
+                          <vs-radio v-model="cashflg" vs-value="현금">현금</vs-radio>
+                        </li>
+                        <li>
+                          <vs-radio v-model="cashflg" vs-value="카드">카드</vs-radio>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="vx-col flex-1 mb-2">
+                      <ul class="centerx">
+                        <li>
+                          <vs-radio v-model="checkflg" vs-value="선불">선불</vs-radio>
+                        </li>
+                        <li>
+                          <vs-radio v-model="checkflg" vs-value="후불">후불</vs-radio>
+                        </li>
+                      </ul>
+                    </div>
+                  </div> 
 
+                  <!-- 주문자 이름 -->
+                  <div class="vx-row mb-2">
+                    <div class="vx-col w-full">
+                      <vs-input class="w-full" icon-pack="feather" icon="icon-user" icon-no-border label-placeholder="주문자 이름" v-model="name" />
+                    </div>
+                  </div>
+                  <!-- 주문자 전화번호 -->
+                  <div class="vx-row mb-2">
+                    <div class="vx-col w-full">
+                      <vs-input class="w-full" icon-pack="feather" icon="icon-smartphone" icon-no-border label-placeholder="전화번호" v-model="mobile" />
+                    </div>
+                  </div>
+                  <!-- 주문자 주소 -->
+                  <div class="vx-row mb-8">
+                    <div class="vx-col w-full">
+                      <vs-input class="w-full" icon-pack="feather" icon="icon-home" icon-no-border label-placeholder="주소" v-model="address" />
+                    </div>
+                  </div>
                   
-                  <!-- ORDER STATUS -->
-                  <vs-select v-model="dataOrder_status" label="Order Status" class="mt-5 w-full">
-                    <vs-select-item :key="item.value" :value="item.value" :text="item.text" v-for="item in order_status_choices" />
-                  </vs-select>
+                  <vs-textarea class="mt-2" label="상세내용" v-model="note" />
 
                   <!-- 가격 -->
-                  <vx-input-group class="mb-base mt-5 w-full" >
+                  <vx-input-group class="mb-base w-full" >
                     <template slot="prepend" >
                       <div class="mt-5 w-full prepend-text bg-primary">
                         <span>₩</span>
@@ -114,9 +174,13 @@
                       </div>
                     </template>
                   </vx-input-group>
+
+
                   <div class="flex flex-wrap items-center p-6" slot="footer">
-                    <vs-button class="mr-6" @click="onAddData" :disabled="!isFormValid">Submit</vs-button>
-                    <vs-button type="border" color="danger" @click="popupActive = false">Cancel</vs-button>
+                    <vs-row vs-align="center" vs-type="flex" vs-justify="center" vs-w="12">
+                      <vs-button class="mr-6" @click="onAddData" :disabled="!isFormValid">저장</vs-button>
+                      <vs-button type="border" color="danger" @click="popupActive = false">취소</vs-button>
+                    </vs-row>
                   </div>
                 </div>
               </vs-popup>
@@ -127,29 +191,29 @@
         <vs-table stripe :data="users">
 
             <template slot="thead">
-                <vs-th>날짜</vs-th>
+                <vs-th>시간</vs-th>
                 <vs-th>고객명</vs-th>
                 <vs-th>주소</vs-th>
                 <vs-th>내용</vs-th>
                 <vs-th>가격</vs-th>
             </template>
 
-            <template slot-scope="{data}">
+            <template slot-scope="{data}" >
                 <vs-tr :key="index" v-for="(tr, index) in data">
-                    <vs-td :data="data[index].date">
-                        {{data[index].date}}
+                    <vs-td :data="data[index].datetime" >
+                        {{data[index].time}}
                     </vs-td>
-                    <vs-td :data="data[index].name">
+                    <vs-td :data="data[index].name" >
                         {{data[index].name}}
                     </vs-td>
-                    <vs-td :data="data[index].address">
+                    <vs-td :data="data[index].address" >
                         {{data[index].address}}
                     </vs-td>
-                    <vs-td :data="data[index].order">
-                        {{data[index].order}}
+                    <vs-td :data="data[index].dduck" >
+                        {{data[index].dduck}}
                     </vs-td>
                     <vs-td :data="data[index].price">
-                        {{data[index].id}}
+                        {{data[index].price}}
                     </vs-td>
                 </vs-tr>
             </template>
@@ -180,6 +244,15 @@ export default {
   },
   data () {
     return {
+      today: dayjs().format('YYYY-MM-DD'),
+      //라디오버튼
+      pickflg:'픽업',
+      cashflg:'현금',
+      checkflg:'선불',
+
+      //스위치
+      switch1:false,
+      switch2:false,
       //떡 양
       number:0,
       //popup
@@ -198,25 +271,17 @@ export default {
       },
 
       dataId: dayjs().format('YYYYMMDDHHmmss'),
-      customerName: '',
-      date: null,
-      dataOrder: null,
-      dataOrder_status: 'pending',
-      dataPrice: 0,
-
-      category_choices: [
-        {text:'Audio', value:'audio'},
-        {text:'Computers', value:'computers'},
-        {text:'Fitness', value:'fitness'},
-        {text:'Appliance', value:'appliance'}
-      ],
-
-      order_status_choices: [
-        {text:'Pending', value:'pending'},
-        {text:'Canceled', value:'canceled'},
-        {text:'Delivered', value:'delivered'},
-        {text:'On Hold', value:'on_hold'}
-      ],
+      dduck: null,
+      amount: 0,
+      unit: '',
+      stickerflg: false,
+      oppflg: false,
+      mobile: '',
+      address: '',
+      note: '',
+      name: '',
+      price: 0,
+      cancelflg: false,
 
       dduckList:[
         '궁중구름떡',
@@ -264,7 +329,6 @@ export default {
         '쵸코설기',
         '치즈설기',
         '콩찰편',
-        '콩찰편',
         '특콩설기', 
         '팥송편',
         '하트백설기',
@@ -280,27 +344,43 @@ export default {
   },
   computed: {
     isFormValid () {
-      return !this.errors.any() && this.dataName && this.dataCategory && this.dataPrice > 0
+      return !this.errors.any() && this.datetime && this.dduck && this.name && this.mobile && this.price > 0
     }
   },
   methods: {
     onAddData () {
       const db = firebase.firestore()
       const user = firebase.auth().currentUser
+      const orderDate = this.datetime.substr(0, 10)
+      const orderTime = this.datetime.slice(-5)
+      
       if (user) {
-        db.collection('order')
+        db.collection('orderList')
           .add(
-            {
+            { 
               uid: user.uid,
               id: this.dataId, //저장날짜로 id화
-              name: this.dataName,
-              date: this.date,
-              category: this.dataCategory,
-              order_status: this.dataOrder_status,
-              price: this.dataPrice
+              datetime: this.datetime,
+              date: orderDate,
+              time: orderTime,
+              dduck: this.dduck,
+              amount: this.amount,
+              unit: this.unit,
+              stickerflg: this.stickerflg,
+              oppflg: this.oppflg,
+              pickflg: this.pickflg,
+              cashflg: this.cashflg,
+              checkflg: this.checkflg,
+              name: this.name,
+              mobile: this.mobile,
+              address: this.address,
+              note: this.note,
+              price: this.price,
+              cancelflg: this.cancelflg
+              
             })
           .then(function () {
-            alert('성공적으로 적용 되었습니다.')
+            location.reload()
           })
       }
     },
@@ -320,17 +400,18 @@ export default {
       let self = this
       console.log('onLoadData')
       const db = firebase.firestore()
-      const ref = db.collection('bbs')
+      const ref = db.collection('orderList')
       const snapshot = ref.get()
-      if (snapshot.empty) {
+      const today = dayjs().format('YYYY-MM-DD')
+      const getSorted = ref.where('date', '==', today).orderBy('time').get()
+      if (getSorted.empty) {
         console.log('No matching documents.')
         return
       }
       // this.users = snapshot.then.doc
-      snapshot.then(function (querySnapshot) {
+      getSorted.then(function (querySnapshot) {
         querySnapshot.forEach(function (doc) {
           self.users.push(doc.data())
-          // eslint-disable-next-line no-unused-expressions
           console.log(doc.id, '=>', doc.data())
         })
       })

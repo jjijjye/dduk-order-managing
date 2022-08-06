@@ -91,16 +91,13 @@
     </component>
 
     <div class="flex flex-wrap items-center p-6" slot="footer">
-      <vs-button class="mr-6" @click="onAddData" :disabled="!isFormValid">Submit</vs-button>
+      <vs-button class="mr-6" @click="submitData" :disabled="!isFormValid">Submit</vs-button>
       <vs-button type="border" color="danger" @click="isSidebarActiveLocal = false">Cancel</vs-button>
     </div>
   </vs-sidebar>
 </template>
 
 <script>
-// eslint-disable-next-line no-unused-vars
-import firebase from 'firebase/app'
-import 'firebase/firestore'
 import VuePerfectScrollbar from 'vue-perfect-scrollbar'
 import dayjs from 'dayjs'
 import flatPickr from 'vue-flatpickr-component'
