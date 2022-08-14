@@ -21,8 +21,12 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import auth from '@/auth/authService'
 
-import firebase from 'firebase/app'
-import 'firebase/auth'
+// import firebase from 'firebase/app'
+// import 'firebase/auth'
+
+import firebase from 'firebase/compat/app'
+import 'firebase/compat/auth'
+import 'firebase/compat/firestore'
 
 Vue.use(Router)
 
@@ -397,6 +401,7 @@ const router = new Router({
             pageTitle: '주문관리',
             rule: 'editor'
           }
+          
         },
         {
           path: '/ui-elements/ag-grid-table',
