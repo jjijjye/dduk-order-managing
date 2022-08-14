@@ -80,7 +80,14 @@
                     <div class="vx-col flex-1 mb-2">
                       <v-select placeholder="단위" name="order-item"  v-model="unit" v-validate="'required'" :options="['kg','되','말','개']" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
                     </div>
+                    <feather-icon icon="TrashIcon" svgClasses="w-5 h-5 hover:text-danger stroke-current" class="ml-2  mb-2" @click.stop="deleteData(tr.id)" />
                   </div> 
+
+                  <!-- 떡 추가 버튼 -->
+                  <vs-divider class="mt-2">
+                    <vs-button radius type="border" icon-pack="feather" icon="icon-plus" @click="addRow"></vs-button>
+                  </vs-divider>
+                  
 
                   <div class="vx-row mt-6">
                     <div class="vx-col flex-1 mb-2">
@@ -282,7 +289,12 @@ export default {
       name: '',
       price: 0,
       cancelflg: false,
-
+      unitList:[
+        'kg',
+        '되',
+        '말',
+        '개'
+      ],
       dduckList:[
         '궁중구름떡',
         '궁중두텁떡',
@@ -348,6 +360,12 @@ export default {
     }
   },
   methods: {
+    addRow () {
+      this.rows.push({
+        name: '',
+        job: ''
+      })
+    },
     onAddData () {
       const db = firebase.firestore()
       const user = firebase.auth().currentUser
@@ -425,3 +443,4 @@ export default {
   }
 }
 </script>
+
