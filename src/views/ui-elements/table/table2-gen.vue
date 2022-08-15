@@ -178,7 +178,7 @@ export default {
       this.addNewDataSidebar = val
     },
     onLoadData () {
-      let self = this
+      const self = this
       console.log('onLoadData')
       const db = firebase.firestore()
       const ref = db.collection('bbs')
