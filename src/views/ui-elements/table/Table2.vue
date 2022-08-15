@@ -70,7 +70,7 @@
                   <span class="text-danger text-sm" v-show="errors.has('item-name')">{{ errors.first('item-name') }}</span>
 
                   <!-- 떡 선택 -->
-                  <!-- <div class="vx-row mt-6" id="dduck">
+                  <div class="vx-row mt-6" v-for="(dduck, index) in dducks" :key="index">
                     <div class="vx-col flex-1 mb-2" >
                       <v-select taggable placeholder="떡" name="order-item"  v-model="dduck.item" v-validate="'required'" :options="dduckList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
                     </div>
@@ -80,22 +80,8 @@
                     <div class="vx-col flex-1 mb-2">
                       <v-select taggable placeholder="단위" name="order-item"  v-model="dduck.unit" v-validate="'required'" :options="unitList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
                     </div>
-                  </div>  -->
-
-<div class="vx-row mt-6" v-for="(dduck, index) in dducks" :key="index">
-  <div class="vx-col flex-1 mb-2" >
-    <v-select taggable placeholder="떡" name="order-item"  v-model="dduck.item" v-validate="'required'" :options="dduckList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
-  </div>
-  <div class="vx-col flex-1 mb-2">
-    <vs-input-number v-model="dduck.amount" label="수량:"/>
-  </div>
-  <div class="vx-col flex-1 mb-2">
-    <v-select taggable placeholder="단위" name="order-item"  v-model="dduck.unit" v-validate="'required'" :options="unitList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
-  </div>
-  <feather-icon icon="TrashIcon" svgClasses="w-5 h-5 hover:text-danger stroke-current" class="ml-2" @click="deleteRow(index)" />
-</div> 
-                    <!-- <it-component v-for="it in dducks" v-bind:key="it"> -->
-                    <!-- </it-component> -->
+                    <feather-icon icon="TrashIcon" svgClasses="w-5 h-5 hover:text-danger stroke-current" class="ml-2" @click="deleteRow(index)" />
+                  </div> 
 
                   <!-- 떡 추가 버튼 -->
                   <vs-divider class="mt-2">
@@ -274,7 +260,6 @@ export default {
     dducks: [
       {item:"",amount:0,unit:""}
     ],
-
       
       today: dayjs().format('YYYY-MM-DD'),
       //라디오버튼
@@ -303,9 +288,6 @@ export default {
       },
 
       dataId: dayjs().format('YYYYMMDDHHmmss'),
-      // dduck: {item:"",amount:0,unit:""},
-      // amount: 0,
-      // unit: '',
       stickerflg: false,
       oppflg: false,
       mobile: '',
@@ -391,10 +373,6 @@ export default {
     deleteRow (index) {
       this.dducks.splice(index, 1)
     },
-    // add () {
-    //   console.log('add')
-    //   this.dducks.push('dduckItem')
-    // },
     onAddData () {
       const db = firebase.firestore()
       const user = firebase.auth().currentUser
@@ -411,8 +389,6 @@ export default {
               date: orderDate,
               time: orderTime,
               dducks: this.dducks,
-              // amount: this.amount,
-              // unit: this.unit,
               stickerflg: this.stickerflg,
               oppflg: this.oppflg,
               pickflg: this.pickflg,
@@ -470,113 +446,6 @@ export default {
   mounted () {
   }
 }
-
-// Vue.component('it-component', {
-//   template: ` <div class="vx-row mt-6">
-//                     <div class="vx-col flex-1 mb-2" >
-//                       <v-select placeholder="떡" name="order-item"  v-model="dduck.item" v-validate="'required'" :options="dduckList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
-//                     </div>
-//                     <div class="vx-col flex-1 mb-2">
-//                       <vs-input-number v-model="dduck.amount" label="수량:"/>
-//                     </div>
-//                     <div class="vx-col flex-1 mb-2">
-//                       <v-select placeholder="단위" name="order-item"  v-model="dduck.unit" v-validate="'required'" :options="unitList" :dir="$vs.rtl ? 'rtl' : 'ltr'" />
-//                     </div>
-//               </div> `,
-//   components: {
-//     vSelect
-//   },
-//   data () {
-//     return {
-//       //떡 추가용 배열
-//       dducks: [], 
-      
-//       //떡 양
-//       number:0,
-//       users: [],
-//       dduck: {item:"",amount:0,unit:""},
-//       amount: 0,
-//       unit: '',
-//       unitList:[
-//         'kg',
-//         '되',
-//         '말',
-//         '개'
-//       ],
-//       dduckList:[
-//         '궁중구름떡',
-//         '궁중두텁떡',
-//         '기계절편',
-//         '꿀떡',
-//         '녹두단호박찰떡',
-//         '녹두찰편',
-//         '대추영양설기',
-//         '딸기설기',
-//         '떡볶이',
-//         '맵시루떡',
-//         '모듬찰떡', 
-//         '무지개떡',
-//         '미니모시 송편',
-//         '바람떡',
-//         '반찰시루떡',
-//         '밤송편', 
-//         '방울증편',
-//         '백미가래떡',
-//         '백일백자 백설기', 
-//         '보리증편', 
-//         '보통콩설기',
-//         '블루베리설기',
-//         '사각증편', 
-//         '서리태콩찰떡',
-//         '손절편',
-//         '수박설기',
-//         '쑥두텁 경단',
-//         '쑥두텁떡',
-//         '쑥콩찰편',
-//         '앙꼬증편', 
-//         '약식', 
-//         '오레오설기',
-//         '오메기떡',
-//         '오색송편',
-//         '왕모시 송편',
-//         '왕찹쌀모찌',
-//         '유기농 콩설기', 
-//         '유기농백설기',
-//         '유자설기',
-//         '이북식인절미', 
-//         '조랭이',
-//         '찰시루떡',
-//         '쵸코설기',
-//         '치즈설기',
-//         '콩찰편',
-//         '특콩설기', 
-//         '팥송편',
-//         '하트백설기',
-//         '현미가래떡',
-//         '현미영양설기',
-//         '호꼬완시루떡', 
-//         '호두찰편',
-//         '횐팥찰편',
-//         '흑미설기',
-//         '흑미영양찰떡'
-//       ]
-//     }
-//   }
-// })
-// window.onload = function () {
-//   new Vue({
-//     el: "#dduck",
-//     data: {
-//       dducks: []
-      
-//     },
-//     methods: {
-//       add() {
-//         this.dducks.push('dduckItem')
-//       },  
-//     }
-//   })
-// }
 
 </script>
 
