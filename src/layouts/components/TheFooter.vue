@@ -31,6 +31,6 @@ export default {
     classes: {
       type: String
     }
-  },
+  }
 }
 </script>

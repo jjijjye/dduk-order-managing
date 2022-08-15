@@ -50,7 +50,7 @@ export default {
   components: {
     vSelect
   },
-  data() {
+  data () {
     return {
       fileName: '',
       formats: ['xlsx', 'csv', 'txt'],
@@ -134,7 +134,7 @@ export default {
     }
   },
   methods: {
-    exportToExcel() {
+    exportToExcel () {
       import('@/vendor/Export2Excel').then(excel => {
         const list = this.users
         const data = this.formatJson(this.headerVal, list)
@@ -148,21 +148,20 @@ export default {
         this.clearFields()
       })
     },
-    formatJson(filterVal, jsonData) {
-      return jsonData.map(v =>
-        filterVal.map(j => {
-          // Add col name which needs to be translated
-          // if (j === 'timestamp') {
-          //   return parseTime(v[j])
-          // } else {
-          //   return v[j]
-          // }
+    formatJson (filterVal, jsonData) {
+      return jsonData.map(v => filterVal.map(j => {
+        // Add col name which needs to be translated
+        // if (j === 'timestamp') {
+        //   return parseTime(v[j])
+        // } else {
+        //   return v[j]
+        // }
 
-          return v[j]
-        })
+        return v[j]
+      })
       )
     },
-    clearFields() {
+    clearFields () {
       this.filename = ''
       this.cellAutoWidth = true
       this.selectedFormat = 'xlsx'
