@@ -396,7 +396,7 @@ const router = new Router({
             authRequired: true,
             breadcrumb: [
               { title: 'Home', url: '/' },
-              { title: '주문관리', active: true } 
+              { title: '오늘의 주문', active: true } 
             ],
             pageTitle: '주문관리',
             rule: 'editor'

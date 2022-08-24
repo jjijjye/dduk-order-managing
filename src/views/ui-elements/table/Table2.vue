@@ -7,13 +7,16 @@
     Author URL: http://www.themeforest.net/user/pixinvent
 ========================================================================================== -->
 
-
 <template>
-    <vx-card title="오늘의 주문">
+  <div id="data-list-list-view" class="data-list-container">
 
+    <data-view-sidebar :isSidebarActive="addNewDataSidebar" @closeSidebar="toggleDataSidebar" :data="sidebarData" />
 
-<div class="flex flex-wrap-reverse items-center data-list-btn-container">
-<data-view-sidebar :isSidebarActive="addNewDataSidebar" @closeSidebar="toggleDataSidebar" :data="sidebarData" />
+    <vs-table  search ref="table" :data="users">
+
+      <div slot="header" class="flex flex-wrap-reverse items-center flex-grow justify-between">
+
+        <div class="flex flex-wrap-reverse items-center data-list-btn-container">
 
           <!-- ACTION - DROPDOWN -->
           <vs-dropdown vs-trigger-click class="dd-actions cursor-pointer mr-4 mb-4">
@@ -52,6 +55,7 @@
                   <span>Another Action</span>
                 </span>
               </vs-dropdown-item>
+
             </vs-dropdown-menu>
           </vs-dropdown>
 
@@ -193,39 +197,49 @@
           </div>
         </div>
 
+      </div>
 
-        <vs-table stripe :data="users">
+      <template slot="thead">
+        <vs-th sort-key="time">시간</vs-th>
+        <vs-th sort-key="name">고객명</vs-th>
+        <vs-th sort-key="address">주소</vs-th>
+        <vs-th sort-key="dducks">내용</vs-th>
+        <vs-th sort-key="price">가격</vs-th>
+        <vs-th>Action</vs-th>
+      </template>
 
-            <template slot="thead">
-                <vs-th>시간</vs-th>
-                <vs-th>고객명</vs-th>
-                <vs-th>주소</vs-th>
-                <vs-th>내용</vs-th>
-                <vs-th>가격</vs-th>
-            </template>
+        <template slot-scope="{data}">
+          <tbody :key="index" v-for="(tr, index) in data">
+            <vs-tr>
+              <vs-td :data="data[index].datetime" >
+                <p class="product-name font-medium truncate">{{data[index].time}}</p>
+              </vs-td>
 
-            <template slot-scope="{data}" >
-                <vs-tr :key="index" v-for="(tr, index) in data">
-                    <vs-td :data="data[index].datetime" >
-                        {{data[index].time}}
-                    </vs-td>
-                    <vs-td :data="data[index].name" >
-                        {{data[index].name}}
-                    </vs-td>
-                    <vs-td :data="data[index].address" >
-                        {{data[index].address}}
-                    </vs-td>
-                    <vs-td :data="data[index].dducks" v-for="(dduck, i) in data[index].dducks" :key="i">
-                      {{dduck.item}}{{dduck.amount}}{{dduck.unit}}
-                    </vs-td>
-                    <vs-td :data="data[index].price">
-                        {{data[index].price}}
-                    </vs-td>
-                </vs-tr>
-            </template>
-        </vs-table>
+              <vs-td :data="data[index].name">
+                <p class="product-category">{{data[index].name}}</p>
+              </vs-td>
 
-    </vx-card>
+              <vs-td :data="data[index].address">
+                <p class="product-category">{{data[index].address}}</p>
+              </vs-td>
+
+              <vs-td >
+                <p class="product-category" :data="data[index].dducks" v-for="(dduck, i) in data[index].dducks" :key="i">{{dduck.item}}{{dduck.amount}}{{dduck.unit}}</p>
+              </vs-td>
+
+              <vs-td :data="data[index].price">
+                <p class="product-category">{{data[index].price}}</p>
+              </vs-td>
+
+              <vs-td class="whitespace-no-wrap">
+                <feather-icon icon="EditIcon" svgClasses="w-5 h-5 hover:text-primary stroke-current"  />
+                <feather-icon icon="TrashIcon" svgClasses="w-5 h-5 hover:text-danger stroke-current" class="ml-2"  />
+              </vs-td>
+            </vs-tr>
+          </tbody>
+        </template>
+    </vs-table>
+  </div>
 </template>
 
 <script src="<https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js>"></script>
@@ -294,7 +308,7 @@ export default {
       address: '',
       note: '',
       name: '',
-      price: 0,
+      price: '',
       cancelflg: false,
       unitList:[
         'kg',
@@ -449,3 +463,122 @@ export default {
 
 </script>
 
+<style lang="scss">
+#data-list-list-view {
+  .vs-con-table {
+
+    /*
+      Below media-queries is fix for responsiveness of action buttons
+      Note: If you change action buttons or layout of this page, Please remove below style
+    */
+    @media (max-width: 689px) {
+      .vs-table--search {
+        margin-left: 0;
+        max-width: unset;
+        width: 100%;
+
+        .vs-table--search-input {
+          width: 100%;
+        }
+      }
+    }
+
+    @media (max-width: 461px) {
+      .items-per-page-handler {
+        display: none;
+      }
+    }
+
+    @media (max-width: 341px) {
+      .data-list-btn-container {
+        width: 100%;
+
+        .dd-actions,
+        .btn-add-new {
+          width: 100%;
+          margin-right: 0 !important;
+        }
+      }
+    }
+
+    .product-name {
+      max-width: 23rem;
+    }
+
+    .vs-table--header {
+      display: flex;
+      flex-wrap: wrap;
+      margin-left: 1.5rem;
+      margin-right: 1.5rem;
+      > span {
+        display: flex;
+        flex-grow: 1;
+      }
+
+      .vs-table--search{
+        padding-top: 0;
+
+        .vs-table--search-input {
+          padding: 0.9rem 2.5rem;
+          font-size: 1rem;
+
+          &+i {
+            left: 1rem;
+          }
+
+          &:focus+i {
+            left: 1rem;
+          }
+        }
+      }
+    }
+
+    .vs-table {
+      border-collapse: separate;
+      border-spacing: 0 1.3rem;
+      padding: 0 1rem;
+
+      tr{
+          box-shadow: 0 4px 20px 0 rgba(0,0,0,.05);
+          td{
+            padding: 20px;
+            &:first-child{
+              border-top-left-radius: .5rem;
+              border-bottom-left-radius: .5rem;
+            }
+            &:last-child{
+              border-top-right-radius: .5rem;
+              border-bottom-right-radius: .5rem;
+            }
+          }
+          td.td-check{
+            padding: 20px !important;
+          }
+      }
+    }
+
+    .vs-table--thead{
+      th {
+        padding-top: 0;
+        padding-bottom: 0;
+
+        .vs-table-text{
+          text-transform: uppercase;
+          font-weight: 600;
+        }
+      }
+      th.td-check{
+        padding: 0 15px !important;
+      }
+      tr{
+        background: none;
+        box-shadow: none;
+      }
+    }
+
+    .vs-table--pagination {
+      justify-content: center;
+    }
+  }
+}
+</style>
