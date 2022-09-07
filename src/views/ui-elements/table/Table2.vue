@@ -321,7 +321,6 @@
             </vs-popup>
           </div>
         </div>
-      </div>
 
       <template slot="thead">
         <vs-th sort-key="time">시간<br>전달방법<br>결제수단<br>결제여부</vs-th>
@@ -357,14 +356,6 @@
                 svgClasses="w-5 h-5 stroke-current"
                 class="ml-2"
               />
-            </vs-td>
-
-            <vs-td :data="data[index].name">
-              <p class="product-category">{{ data[index].name }}</p>
-            </vs-td>
-
-            <vs-td :data="data[index].address">
-              <p class="product-category">{{ data[index].address }}</p>
             </vs-td>
 
             <vs-td>
@@ -582,7 +573,6 @@ export default {
     editData(data) {
       // this.sidebarData = JSON.parse(JSON.stringify(this.blankData))
       this.sidebarData = data;
-      this.toggleDataSidebar(true);
     },
     toggleDataSidebar(val = false) {
       this.addNewDataSidebar = val;
@@ -622,7 +612,6 @@ export default {
       if (flg === "선불") return "CheckCircleIcon";
       if (flg === "후불") return "XCircleIcon";
       return "primary";
-    }
   },
   created() {
     this.onLoadData();
