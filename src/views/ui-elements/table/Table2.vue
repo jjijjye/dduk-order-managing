@@ -14,87 +14,67 @@
       @closeSidebar="toggleDataSidebar"
       :data="sidebarData"
     />
-
-    <vs-table search ref="table" :data="users">
-      <div
-        slot="header"
-        class="flex flex-wrap-reverse items-center flex-grow justify-between"
-      >
+    <div class="export-table">
+      <vs-table search ref="table" :data="users">
         <div
-          class="flex flex-wrap-reverse items-center data-list-btn-container"
+          slot="header"
+          class="flex flex-wrap-reverse items-center flex-grow justify-between"
         >
-          <!-- ACTION - DROPDOWN -->
-          <vs-dropdown
-            vs-trigger-click
-            class="dd-actions cursor-pointer mr-4 mb-4"
-          >
-            <div
-              class="p-4 shadow-drop rounded-lg d-theme-dark-bg cursor-pointer flex items-center justify-center text-lg font-medium w-32 w-full"
-            >
-              <span class="mr-2">Actions</span>
-              <feather-icon icon="ChevronDownIcon" svgClasses="h-4 w-4" />
-            </div>
-
-            <vs-dropdown-menu>
-              <vs-dropdown-item>
-                <span class="flex items-center">
-                  <feather-icon
-                    icon="TrashIcon"
-                    svgClasses="h-4 w-4"
-                    class="mr-2"
-                  />
-                  <span>Delete</span>
-                </span>
-              </vs-dropdown-item>
-
-              <vs-dropdown-item>
-                <span class="flex items-center">
-                  <feather-icon
-                    icon="ArchiveIcon"
-                    svgClasses="h-4 w-4"
-                    class="mr-2"
-                  />
-                  <span>Archive</span>
-                </span>
-              </vs-dropdown-item>
-
-              <vs-dropdown-item>
-                <span class="flex items-center">
-                  <feather-icon
-                    icon="FileIcon"
-                    svgClasses="h-4 w-4"
-                    class="mr-2"
-                  />
-                  <span>Print</span>
-                </span>
-              </vs-dropdown-item>
-
-              <vs-dropdown-item>
-                <span class="flex items-center">
-                  <feather-icon
-                    icon="SaveIcon"
-                    svgClasses="h-4 w-4"
-                    class="mr-2"
-                  />
-                  <span>Another Action</span>
-                </span>
-              </vs-dropdown-item>
-            </vs-dropdown-menu>
-          </vs-dropdown>
-
-          <!-- ADD NEW -->
-          <!-- <div class="btn-add-new p-3 mb-4 mr-4 rounded-lg cursor-pointer flex items-center justify-center text-lg font-medium text-base text-primary border border-solid border-primary" @click="addNewData"> -->
           <div
-            class="btn-add-new p-3 mb-4 mr-4 rounded-lg cursor-pointer flex items-center justify-center text-lg font-medium text-base text-primary border border-solid border-primary"
-            @click="popupActive = true"
+            class="flex flex-wrap-reverse items-center data-list-btn-container"
           >
-            <feather-icon icon="PlusIcon" svgClasses="h-4 w-4" />
-            <span class="ml-2 text-base text-primary">주문 추가</span>
-
+            <!-- 다운로드 버튼 -->
+            <vs-button
+              type="filled"
+              @click="activePrompt = true"
+              class="mr-4 mb-4"
+              icon-pack="feather"
+              icon="icon-download"
+              >다운로드</vs-button
+            >
+            <vs-dropdown
+              vs-trigger-click
+              class="dd-actions cursor-pointer mb-4"
+            >
+            </vs-dropdown>
+            <vs-prompt
+              title="다운로드"
+              class="export-options"
+              @cancle="clearFields"
+              @accept="exportToExcel"
+              accept-text="확인"
+              cancel-text="취소"
+              @close="clearFields"
+              :active.sync="activePrompt"
+            >
+              <vs-input
+                v-model="fileName"
+                placeholder="파일 이름을 입력하세요.."
+                class="w-full"
+              />
+              <v-select
+                v-model="selectedFormat"
+                :options="formats"
+                class="my-4"
+              />
+              <div class="flex">
+                <span class="mr-4">맞춤 셀 넓이:</span>
+                <vs-switch v-model="cellAutoWidth">>맞춤 셀 넓이</vs-switch>
+              </div>
+            </vs-prompt>
+            <!-- ADD NEW -->
+            <!-- <div class="btn-add-new p-3 mb-4 mr-4 rounded-lg cursor-pointer flex items-center justify-center text-lg font-medium text-base text-primary border border-solid border-primary" @click="addNewData"> -->
+            <vs-button
+              type="border"
+              icon-pack="feather"
+              icon="icon-plus"
+              @click="popupActive = true"
+              class="mr-4 mb-4"
+              >주문 추가</vs-button
+            >
             <!-- 주문생성 팝업 -->
             <vs-popup class="holamundo" title="주문" :active.sync="popupActive">
               <div class="p-6">
-                <!-- <h4>주문 {{ Object.entries(this.data).length === 0 ? "작성" : "수정" }} </h4> -->
                 <!-- 날짜 & 시간 -->
                 <flat-pickr
                   :config="configdateTimePicker"
@@ -103,11 +83,11 @@
                   v-model="datetime"
                   placeholder="주문 날짜 및 시간"
                 />
-                <span
+                <!-- <span
                   class="text-danger text-sm"
                   v-show="errors.has('item-name')"
                   >{{ errors.first("item-name") }}</span
-                >
+                > -->
 
                 <!-- 떡 선택 -->
                 <div
@@ -322,72 +302,114 @@
           </div>
         </div>
 
-      <template slot="thead">
-        <vs-th sort-key="time">시간<br>전달방법<br>결제수단<br>결제여부</vs-th>
-        <vs-th sort-key="name">고객명</vs-th>
-        <vs-th sort-key="address">주소</vs-th>
-        <vs-th sort-key="dducks">떡</vs-th>
-        <vs-th sort-key="price">가격</vs-th> 
-        <vs-th>Action</vs-th>
-      </template>
+        <template slot="thead">
+          <vs-th>시간<br />전달방법<br />결제수단<br />결제여부</vs-th>
+          <vs-th>주문 내용</vs-th>
+          <vs-th>고객명</vs-th>
+          <vs-th>주소</vs-th>
+          <vs-th>가격</vs-th>
+          <vs-th></vs-th>
+        </template>
 
-      <template slot-scope="{ data }">
-        <tbody :key="index" v-for="(tr, index) in data" >
-          <vs-tr>
-            <vs-td :data="data[index].datetime">
-              <p class="product-name font-medium truncate">
-                {{ data[index].time }}
-              </p>
-              <br />
-              <feather-icon
-                :icon="getPickUpIcon(data[index].pickflg)"
-                svgClasses="w-5 h-5 stroke-current"
-                class="ml-2"
-              />
-              <br />
-              <feather-icon
-                :icon="getCashIcon(data[index].cashflg)"
-                svgClasses="w-5 h-5 stroke-current"
-                class="ml-2"
-              />
-              <br />
-              <feather-icon
-                :icon="getCheckIcon(data[index].checkflg)"
-                svgClasses="w-5 h-5 stroke-current"
-                class="ml-2"
-              />
-            </vs-td>
+        <template slot-scope="{ data }">
+          <tbody :key="index" v-for="(tr, index) in data">
+            <vs-tr>
+              <vs-td :data="data[index].datetime">
+                <p
+                  class="product-name font-medium truncate"
+                  :class="[data[index].cancelflg ? 'canceled' : '']"
+                >
+                  {{ data[index].time }}
+                </p>
+                <br />
+                <feather-icon
+                  :icon="getPickUpIcon(data[index].pickflg)"
+                  svgClasses="w-5 h-5 stroke-current"
+                  class="ml-2"
+                />
+                <br />
+                <feather-icon
+                  :icon="getCashIcon(data[index].cashflg)"
+                  svgClasses="w-5 h-5 stroke-current"
+                  class="ml-2"
+                />
+                <br />
+                <feather-icon
+                  :icon="getCheckIcon(data[index].checkflg)"
+                  svgClasses="w-5 h-5 stroke-current"
+                  class="ml-2"
+                />
+              </vs-td>
 
-            <vs-td>
-              <p
-                class="product-category"
-                :data="data[index].dducks"
-                v-for="(dduck, i) in data[index].dducks"
-                :key="i"
-              >
-                {{ dduck.item }}{{ dduck.amount }}{{ dduck.unit }}
-              </p>
-            </vs-td>
+              <vs-td>
+                <p
+                  class="product-category"
+                  :class="[data[index].cancelflg ? 'canceled' : '']"
+                  :data="data[index].dducks"
+                  v-for="(dduck, i) in data[index].dducks"
+                  :key="i"
+                >
+                  {{ dduck.item }}{{ dduck.amount }}{{ dduck.unit }}
+                </p>
+                <p
+                  style="white-space: pre-line"
+                  :class="[data[index].cancelflg ? 'canceled' : '']"
+                >
+                  {{ data[index].note }}
+                </p>
+              </vs-td>
 
-            <vs-td :data="data[index].price">
-              <p class="product-category">{{ data[index].price }}</p>
-            </vs-td>
+              <vs-td :data="data[index].name">
+                <p
+                  class="product-category"
+                  :class="[data[index].cancelflg ? 'canceled' : '']"
+                >
+                  {{ data[index].name }}
+                </p>
+              </vs-td>
 
-            <vs-td class="whitespace-no-wrap">
-              <feather-icon
-                icon="EditIcon"
-                svgClasses="w-5 h-5 hover:text-primary stroke-current"
-              />
-              <feather-icon
-                icon="TrashIcon"
-                svgClasses="w-5 h-5 hover:text-danger stroke-current"
-                class="ml-2"
-              />
-            </vs-td>
-          </vs-tr>
-        </tbody>
-      </template>
-    </vs-table>
+              <vs-td :data="data[index].address">
+                <p
+                  class="product-category"
+                  :class="[data[index].cancelflg ? 'canceled' : '']"
+                >
+                  {{ data[index].address }}
+                </p>
+              </vs-td>
+
+              <vs-td :data="data[index].price">
+                <p
+                  class="product-category"
+                  :class="[data[index].cancelflg ? 'canceled' : '']"
+                >
+                  {{ data[index].price }}
+                </p>
+              </vs-td>
+
+              <vs-td class="whitespace-no-wrap">
+                <feather-icon
+                  icon="EditIcon"
+                  svgClasses="w-5 h-5 hover:text-primary stroke-current"
+                  @click.stop="editData(tr)"
+                />
+                <feather-icon
+                  v-if="data[index].cancelflg"
+                  icon="RotateCcwIcon"
+                  svgClasses="w-5 h-5 hover:text-success stroke-current"
+                  class="ml-2"
+                />
+                <feather-icon
+                  v-else
+                  icon="TrashIcon"
+                  svgClasses="w-5 h-5 hover:text-danger stroke-current"
+                  class="ml-2"
+                />
+              </vs-td>
+            </vs-tr>
+          </tbody>
+        </template>
+      </vs-table>
+    </div>
   </div>
 </template>
 
@@ -417,6 +439,47 @@ export default {
 
   data() {
     return {
+      //export
+      join: "",
+      fileName: "",
+      formats: ["xlsx", "csv", "txt"],
+      cellAutoWidth: true,
+      selectedFormat: "xlsx",
+      headerTitle: [
+        "취소",
+        "준문번호",
+        "시간",
+        "주문내용",
+        "가격",
+        "주문자",
+        "전화번호",
+        "주소",
+        "스티커",
+        "OPP",
+        "전달방법",
+        "결제수단",
+        "결제여부",
+        "비고",
+      ],
+      headerVal: [
+        "cancelflgTxt",
+        "id",
+        "time",
+        "join",
+        "price",
+        "name",
+        "mobile",
+        "address",
+        "stickerflgTxt",
+        "oppflgTxt",
+        "pickflg",
+        "cashflg",
+        "checkflg",
+        "note",
+      ],
+      activePrompt: false,
+      cellAutoWidth: true,
+
       //떡 추가용 배열
       dducks: [{ item: "", amount: 0, unit: "" }],
 
@@ -448,13 +511,16 @@ export default {
 
       dataId: dayjs().format("YYYYMMDDHHmmss"),
       stickerflg: false,
+      stickerflgTxt: "",
       oppflg: false,
+      oppflgTxt: "",
       mobile: "",
       address: "",
       note: "",
       name: "",
       price: "",
       cancelflg: false,
+      cancelflgTxt: "",
       unitList: ["kg", "되", "말", "개"],
       dduckList: [
         "궁중구름떡",
@@ -528,6 +594,41 @@ export default {
     },
   },
   methods: {
+    convertBoolean() {
+      for (let i = 0; i < this.users.length; i++) {
+        if (this.users[i].stickerflg) {
+          this.users[i].stickerflgTxt = "스티커";
+        } else {
+          this.users[i].stickerflgTxt = "X";
+        }
+
+        if (this.users[i].oppflg) {
+          this.users[i].oppflgTxt = "OPP";
+        } else {
+          this.users[i].oppflgTxt = "X";
+        }
+
+        if (this.users[i].cancelflg) {
+          this.users[i].cancelflgTxt = "취소주문";
+        } else {
+          this.users[i].cancelflgTxt = "";
+        }
+      }
+    },
+    dduckJoin() {
+      for (let i = 0; i < this.users.length; i++) {
+        const arr = this.users[i].dducks;
+        for (let y = 0; y < arr.length; y++) {
+          const dduck = arr[y];
+          if (!this.users[i].join) {
+            this.users[i].join = dduck.item + dduck.amount + dduck.unit;
+          } else {
+            this.users[i].join +=
+              " / " + dduck.item + dduck.amount + dduck.unit;
+          }
+        }
+      }
+    },
     addRow() {
       this.dducks.push({ item: "", amount: 0, unit: "" });
     },
@@ -560,6 +661,7 @@ export default {
             note: this.note,
             price: this.price,
             cancelflg: this.cancelflg,
+            // join: this.join,
           })
           .then(function () {
             location.reload();
@@ -571,8 +673,26 @@ export default {
       this.toggleDataSidebar(true);
     },
     editData(data) {
+      this.popupActive = true;
       // this.sidebarData = JSON.parse(JSON.stringify(this.blankData))
-      this.sidebarData = data;
+      this.datetime = data.datetime;
+      console.log("data.datetime : " + data.datetime);
+      this.dducks = data.dducks;
+      console.log("data.dducks : " + data.dducks);
+      this.stickerflg = data.stickerflg;
+      this.oppflg = data.oppflg;
+      this.pickflg = data.pickflg;
+      this.cashflg = data.cashflg;
+      this.checkflg = data.checkflg;
+      this.name = data.name;
+      this.mobile = data.mobile;
+      this.address = data.address;
+      this.note = data.note;
+      this.price = data.price;
+      this.cancelflg = data.cancelflg;
+      this.data = Object.values(data);
+      console.log("this.data => " + this.data);
+      // this.clearFields();
     },
     toggleDataSidebar(val = false) {
       this.addNewDataSidebar = val;
@@ -612,6 +732,55 @@ export default {
       if (flg === "선불") return "CheckCircleIcon";
       if (flg === "후불") return "XCircleIcon";
       return "primary";
+    },
+    exportToExcel() {
+      this.dduckJoin();
+      this.convertBoolean();
+      import("@/vendor/Export2Excel").then((excel) => {
+        const list = this.users;
+        const data = this.formatJson(this.headerVal, list);
+        excel.export_json_to_excel({
+          header: this.headerTitle,
+          data,
+          filename: this.fileName,
+          autoWidth: this.cellAutoWidth,
+          bookType: this.selectedFormat,
+        });
+        this.clearFields();
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map((v) =>
+        filterVal.map((j) => {
+          // Add col name which needs to be translated
+          // if (j === 'timestamp') {
+          //   return parseTime(v[j])
+          // } else {
+          //   return v[j]
+          // }
+
+          return v[j];
+        })
+      );
+    },
+    clearFields() {
+      this.filename = "";
+      this.cellAutoWidth = true;
+      this.selectedFormat = "xlsx";
+      this.datetime = "";
+      this.dducks = [{ item: "", amount: 0, unit: "" }],
+      this.stickerflg = false;
+      this.oppflg = false;
+      this.pickflg = "픽업";
+      this.cashflg = "현금";
+      this.checkflg = "선불";
+      this.name = "";
+      this.mobile = "";
+      this.address = "";
+      this.note = "";
+      this.price = 0;
+      this.cancelflg = false;
+    },
   },
   created() {
     this.onLoadData();
@@ -621,6 +790,10 @@ export default {
 </script>
 
 <style lang="scss">
+.canceled {
+  text-decoration: line-through;
+}
+
 #data-list-list-view {
   .vs-con-table {
     /*
