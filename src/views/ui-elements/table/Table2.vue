@@ -397,12 +397,14 @@
                   icon="RotateCcwIcon"
                   svgClasses="w-5 h-5 hover:text-success stroke-current"
                   class="ml-2"
+                  @click="openUndoCon(),itemId = data[index].id"
                 />
                 <feather-icon
                   v-else
                   icon="TrashIcon"
                   svgClasses="w-5 h-5 hover:text-danger stroke-current"
                   class="ml-2"
+                  @click="openCanCon(),itemId = data[index].id"
                 />
               </vs-td>
             </vs-tr>
@@ -427,6 +429,7 @@ import "flatpickr/dist/flatpickr.css";
 import { Korean } from "flatpickr/dist/l10n/ko.js";
 import vSelect from "vue-select";
 import Vue from "vue";
+
 
 export default {
   components: {
@@ -479,6 +482,7 @@ export default {
       ],
       activePrompt: false,
       cellAutoWidth: true,
+      activeConfirm: false,
 
       //떡 추가용 배열
       dducks: [{ item: "", amount: 0, unit: "" }],
@@ -509,7 +513,9 @@ export default {
         locale: Korean,
       },
 
-      dataId: dayjs().format("YYYYMMDDHHmmss"),
+      itemId: null,
+
+      dataId: "",
       stickerflg: false,
       stickerflgTxt: "",
       oppflg: false,
@@ -597,19 +603,19 @@ export default {
     convertBoolean() {
       for (let i = 0; i < this.users.length; i++) {
         if (this.users[i].stickerflg) {
-          this.users[i].stickerflgTxt = "스티커";
+          this.users[i].stickerflgTxt = "O";
         } else {
           this.users[i].stickerflgTxt = "X";
         }
 
         if (this.users[i].oppflg) {
-          this.users[i].oppflgTxt = "OPP";
+          this.users[i].oppflgTxt = "O";
         } else {
           this.users[i].oppflgTxt = "X";
         }
 
         if (this.users[i].cancelflg) {
-          this.users[i].cancelflgTxt = "취소주문";
+          this.users[i].cancelflgTxt = "취소";
         } else {
           this.users[i].cancelflgTxt = "";
         }
@@ -637,15 +643,16 @@ export default {
     },
     onAddData() {
       const db = firebase.firestore();
+      const ref = db.collection("orderList");
       const user = firebase.auth().currentUser;
       const orderDate = this.datetime.substr(0, 10);
       const orderTime = this.datetime.slice(-5);
 
-      if (user) {
+      if (user && this.dataId == "") {
         db.collection("orderList")
           .add({
             uid: user.uid,
-            id: this.dataId, //저장날짜로 id화
+            id: dayjs().format("YYYYMMDDHHmmss"), //저장날짜로 id화
             datetime: this.datetime,
             date: orderDate,
             time: orderTime,
@@ -666,6 +673,36 @@ export default {
           .then(function () {
             location.reload();
           });
+      } else {
+        const getById = ref.where("id", "==", this.dataId).get();
+        if (getById.empty) {
+          console.log("No matching documents.");
+          return;
+        }
+        let self = this;
+        // this.users = snapshot.then.doc
+        getById.then(function (querySnapshot) {
+          querySnapshot.forEach(function (doc) {
+            const item = ref.doc(doc.id);
+            item.update({datetime: self.datetime})
+            item.update({date: self.datetime.substr(0, 10)})
+            item.update({time: self.datetime.slice(-5)})
+            item.update({dducks: self.dducks})
+            item.update({stickerflg: self.stickerflg})
+            item.update({oppflg: self.oppflg})
+            item.update({pickflg: self.pickflg})
+            item.update({cashflg: self.cashflg})
+            item.update({checkflg: self.checkflg})
+            item.update({name: self.name})
+            item.update({mobile: self.mobile})
+            item.update({address: self.address})
+            item.update({note: self.note})
+            item.update({price: self.price})
+            .then(function () {
+              location.reload();
+            });
+          });
+        })
       }
     },
     addNewData() {
@@ -673,12 +710,11 @@ export default {
       this.toggleDataSidebar(true);
     },
     editData(data) {
+      this.dataId = data.id;
       this.popupActive = true;
       // this.sidebarData = JSON.parse(JSON.stringify(this.blankData))
       this.datetime = data.datetime;
-      console.log("data.datetime : " + data.datetime);
       this.dducks = data.dducks;
-      console.log("data.dducks : " + data.dducks);
       this.stickerflg = data.stickerflg;
       this.oppflg = data.oppflg;
       this.pickflg = data.pickflg;
@@ -691,7 +727,6 @@ export default {
       this.price = data.price;
       this.cancelflg = data.cancelflg;
       this.data = Object.values(data);
-      console.log("this.data => " + this.data);
       // this.clearFields();
     },
     toggleDataSidebar(val = false) {
@@ -781,6 +816,64 @@ export default {
       this.price = 0;
       this.cancelflg = false;
     },
+    openCanCon() {
+      this.$vs.dialog({
+        type: 'confirm',
+        color: 'danger',
+        title: `주문취소`,
+        text: '주문을 취소할까요?',
+        accept: this.updateData
+      });
+    },
+    openUndoCon() {
+      this.$vs.dialog({
+        type: 'confirm',
+        color: 'success',
+        title: `되돌리기`,
+        text: '취소된 주문을 되돌릴까요?',
+        accept: this.updateData
+      });
+    },
+    canAlert() {
+      this.$vs.notify({
+        color: 'danger',
+        title: '주문취소',
+        text: '주문이 취소되었습니다.'
+      })
+    },
+    undoAlert() {
+      this.$vs.notify({
+        color: 'success',
+        title: '주문복구',
+        text: '주문이 복구되었습니다.'
+      })
+    },
+    updateData(){
+      const db = firebase.firestore();
+      const ref = db.collection("orderList");
+      const getSorted = ref.where("id", "==", this.itemId).get();
+      if (getSorted.empty) {
+        console.log("No matching documents.");
+        return;
+      }
+      // this.users = snapshot.then.doc
+      getSorted.then(function (querySnapshot) {
+        querySnapshot.forEach(function (doc) {
+          const item = ref.doc(doc.id);
+          if (!doc.data().cancelflg) {
+            item.update({cancelflg: true})
+            .then(function () {
+              location.reload();
+            });
+          } else {
+            item.update({cancelflg: false})
+            .then(function () {
+              location.reload();
+            });
+          }
+        });
+      })
+    }
   },
   created() {
     this.onLoadData();
